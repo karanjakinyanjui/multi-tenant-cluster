@@ -1,0 +1,50 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: team-gamma-developer-binding
+  namespace: team-gamma
+  labels:
+    team: gamma
+subjects:
+  - kind: ServiceAccount
+    name: team-gamma-developer
+    namespace: team-gamma
+roleRef:
+  kind: Role
+  name: developer-role
+  apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: team-gamma-deployer-binding
+  namespace: team-gamma
+  labels:
+    team: gamma
+subjects:
+  - kind: ServiceAccount
+    name: team-gamma-deployer
+    namespace: team-gamma
+roleRef:
+  kind: Role
+  name: deployer-role
+  apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: team-gamma-readonly-binding
+  namespace: team-gamma
+  labels:
+    team: gamma
+subjects:
+  - kind: ServiceAccount
+    name: team-gamma-readonly
+    namespace: team-gamma
+roleRef:
+  kind: Role
+  name: readonly-role
+  apiGroup: rbac.authorization.k8s.io

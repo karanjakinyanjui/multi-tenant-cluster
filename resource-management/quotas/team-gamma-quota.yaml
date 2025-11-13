@@ -1,0 +1,38 @@
+---
+# Resource Quota for Team Gamma (Staging/Experimental)
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: team-gamma-quota
+  namespace: team-gamma
+  labels:
+    team: gamma
+    environment: staging
+spec:
+  hard:
+    # Compute Resources (Lower for staging)
+    requests.cpu: "10"
+    requests.memory: "20Gi"
+    limits.cpu: "20"
+    limits.memory: "40Gi"
+
+    # Storage
+    requests.storage: "200Gi"
+    persistentvolumeclaims: "5"
+
+    # Object counts
+    pods: "30"
+    services: "10"
+    services.loadbalancers: "1"
+    services.nodeports: "0"
+
+    # Configurations
+    configmaps: "20"
+    secrets: "20"
+
+    # Deployments
+    count/deployments.apps: "10"
+    count/replicasets.apps: "20"
+    count/statefulsets.apps: "3"
+    count/jobs.batch: "10"
+    count/cronjobs.batch: "5"

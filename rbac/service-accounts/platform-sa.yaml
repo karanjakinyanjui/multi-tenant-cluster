@@ -1,0 +1,22 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: platform-admin
+  namespace: platform
+  labels:
+    team: platform
+    role: admin
+  annotations:
+    description: "Service account for Platform administrators"
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: monitoring-agent
+  namespace: platform
+  labels:
+    team: platform
+    role: monitoring
+  annotations:
+    description: "Service account for monitoring and observability tools"

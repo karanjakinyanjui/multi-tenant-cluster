@@ -1,0 +1,112 @@
+---
+# Team Beta - Batch Processing Job
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: batch-processor
+  namespace: team-beta
+  labels:
+    app: batch-processor
+    team: beta
+    type: batch
+spec:
+  completions: 5
+  parallelism: 2
+  backoffLimit: 3
+  template:
+    metadata:
+      labels:
+        app: batch-processor
+        team: beta
+    spec:
+      serviceAccountName: team-beta-deployer
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      restartPolicy: OnFailure
+      containers:
+        - name: processor
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+            - |
+              echo "Starting batch processing job..."
+              echo "Job: $JOB_NAME"
+              echo "Processing batch data..."
+              sleep 10
+              echo "Batch processing completed successfully"
+          env:
+            - name: JOB_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          resources:
+            requests:
+              cpu: 200m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+
+---
+# Team Beta - CronJob for scheduled processing
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: scheduled-processor
+  namespace: team-beta
+  labels:
+    app: scheduled-processor
+    team: beta
+    type: scheduled
+spec:
+  schedule: "0 2 * * *"  # Run daily at 2 AM
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: scheduled-processor
+            team: beta
+        spec:
+          serviceAccountName: team-beta-deployer
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            fsGroup: 1000
+          restartPolicy: OnFailure
+          containers:
+            - name: processor
+              image: busybox:1.36
+              command:
+                - sh
+                - -c
+                - |
+                  echo "Running scheduled data processing..."
+                  echo "Timestamp: $(date)"
+                  sleep 5
+                  echo "Scheduled processing completed"
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 128Mi
+                limits:
+                  cpu: 200m
+                  memory: 256Mi
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop:
+                    - ALL

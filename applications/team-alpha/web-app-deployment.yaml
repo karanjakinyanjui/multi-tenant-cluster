@@ -1,0 +1,121 @@
+---
+# Team Alpha - Web Application Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-app
+  namespace: team-alpha
+  labels:
+    app: web-app
+    team: alpha
+    tier: frontend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: web-app
+      team: alpha
+  template:
+    metadata:
+      labels:
+        app: web-app
+        team: alpha
+        tier: frontend
+        network-policy: allow-external
+    spec:
+      serviceAccountName: team-alpha-developer
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      containers:
+        - name: nginx
+          image: nginx:1.25-alpine
+          ports:
+            - containerPort: 8080
+              name: http
+          resources:
+            requests:
+              cpu: 200m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          volumeMounts:
+            - name: cache
+              mountPath: /var/cache/nginx
+            - name: run
+              mountPath: /var/run
+      volumes:
+        - name: cache
+          emptyDir: {}
+        - name: run
+          emptyDir: {}
+
+---
+# Web App Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-app-service
+  namespace: team-alpha
+  labels:
+    app: web-app
+    team: alpha
+spec:
+  type: ClusterIP
+  selector:
+    app: web-app
+    team: alpha
+  ports:
+    - port: 80
+      targetPort: 8080
+      protocol: TCP
+      name: http
+
+---
+# Web App ConfigMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: web-app-config
+  namespace: team-alpha
+  labels:
+    app: web-app
+    team: alpha
+data:
+  nginx.conf: |
+    events {
+        worker_connections 1024;
+    }
+    http {
+        server {
+            listen 8080;
+            location / {
+                return 200 'Team Alpha Web App - Running in Multi-Tenant Cluster\n';
+                add_header Content-Type text/plain;
+            }
+            location /health {
+                return 200 'OK';
+                add_header Content-Type text/plain;
+            }
+        }
+    }

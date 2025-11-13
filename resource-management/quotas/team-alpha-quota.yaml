@@ -1,0 +1,45 @@
+---
+# Resource Quota for Team Alpha (Production workload)
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: team-alpha-quota
+  namespace: team-alpha
+  labels:
+    team: alpha
+    environment: production
+spec:
+  hard:
+    # Compute Resources
+    requests.cpu: "20"
+    requests.memory: "40Gi"
+    limits.cpu: "40"
+    limits.memory: "80Gi"
+
+    # Storage
+    requests.storage: "500Gi"
+    persistentvolumeclaims: "10"
+
+    # Object counts
+    pods: "50"
+    services: "20"
+    services.loadbalancers: "3"
+    services.nodeports: "0"
+
+    # Configurations
+    configmaps: "30"
+    secrets: "30"
+
+    # Deployments
+    count/deployments.apps: "20"
+    count/replicasets.apps: "40"
+    count/statefulsets.apps: "5"
+    count/jobs.batch: "10"
+    count/cronjobs.batch: "5"
+
+  # Scope selectors for prioritization
+  scopeSelector:
+    matchExpressions:
+      - operator: In
+        scopeName: PriorityClass
+        values: ["high", "medium"]

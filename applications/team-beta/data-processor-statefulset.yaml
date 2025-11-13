@@ -1,0 +1,94 @@
+---
+# Team Beta - Data Processor StatefulSet
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: data-processor
+  namespace: team-beta
+  labels:
+    app: data-processor
+    team: beta
+    tier: processing
+spec:
+  serviceName: data-processor
+  replicas: 3
+  selector:
+    matchLabels:
+      app: data-processor
+      team: beta
+  template:
+    metadata:
+      labels:
+        app: data-processor
+        team: beta
+        tier: processing
+        network-policy: allow-external
+    spec:
+      serviceAccountName: team-beta-developer
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      containers:
+        - name: processor
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+            - |
+              echo "Data Processor Pod: $HOSTNAME"
+              while true; do
+                echo "$(date): Processing data batch..."
+                sleep 30
+              done
+          resources:
+            requests:
+              cpu: 500m
+              memory: 512Mi
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: data-storage
+              mountPath: /data
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
+  volumeClaimTemplates:
+    - metadata:
+        name: data-storage
+        labels:
+          app: data-processor
+          team: beta
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 10Gi
+
+---
+# Data Processor Headless Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: data-processor
+  namespace: team-beta
+  labels:
+    app: data-processor
+    team: beta
+spec:
+  clusterIP: None
+  selector:
+    app: data-processor
+    team: beta
+  ports:
+    - port: 8080
+      name: metrics

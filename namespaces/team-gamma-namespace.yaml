@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: team-gamma
+  labels:
+    name: team-gamma
+    team: gamma
+    environment: staging
+    managed-by: platform-team
+  annotations:
+    description: "Staging namespace for Team Gamma - handles experimental features"
+    owner: "gamma-team-lead@company.com"
+    cost-center: "CC-GAMMA-003"

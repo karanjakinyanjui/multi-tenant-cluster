@@ -1,0 +1,38 @@
+---
+# Resource Quota for Team Beta (Data Processing workload)
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: team-beta-quota
+  namespace: team-beta
+  labels:
+    team: beta
+    environment: production
+spec:
+  hard:
+    # Compute Resources (Higher for data processing)
+    requests.cpu: "30"
+    requests.memory: "60Gi"
+    limits.cpu: "60"
+    limits.memory: "120Gi"
+
+    # Storage (Higher for data processing)
+    requests.storage: "1Ti"
+    persistentvolumeclaims: "20"
+
+    # Object counts
+    pods: "100"
+    services: "15"
+    services.loadbalancers: "2"
+    services.nodeports: "0"
+
+    # Configurations
+    configmaps: "25"
+    secrets: "25"
+
+    # Deployments
+    count/deployments.apps: "15"
+    count/replicasets.apps: "30"
+    count/statefulsets.apps: "10"
+    count/jobs.batch: "50"
+    count/cronjobs.batch: "20"
