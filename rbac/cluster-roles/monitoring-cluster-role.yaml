@@ -1,0 +1,49 @@
+---
+# ClusterRole for monitoring tools (Prometheus, Grafana, etc.)
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: monitoring-reader
+  labels:
+    app: monitoring
+    rbac.authorization.k8s.io/aggregate-to-view: "true"
+rules:
+  # Read access to all pods and their metrics
+  - apiGroups: [""]
+    resources: ["pods", "pods/log", "pods/status", "nodes", "nodes/metrics", "nodes/stats"]
+    verbs: ["get", "list", "watch"]
+
+  # Read access to services and endpoints for service discovery
+  - apiGroups: [""]
+    resources: ["services", "endpoints"]
+    verbs: ["get", "list", "watch"]
+
+  # Read access to deployments and statefulsets for metadata
+  - apiGroups: ["apps"]
+    resources: ["deployments", "replicasets", "daemonsets", "statefulsets"]
+    verbs: ["get", "list", "watch"]
+
+  # Read access to ingresses
+  - apiGroups: ["networking.k8s.io"]
+    resources: ["ingresses"]
+    verbs: ["get", "list", "watch"]
+
+  # Read access to namespaces
+  - apiGroups: [""]
+    resources: ["namespaces"]
+    verbs: ["get", "list", "watch"]
+
+  # Read access to resource quotas and limit ranges
+  - apiGroups: [""]
+    resources: ["resourcequotas", "limitranges"]
+    verbs: ["get", "list", "watch"]
+
+  # Read access to events
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["get", "list", "watch"]
+
+  # Metrics API access
+  - apiGroups: ["metrics.k8s.io"]
+    resources: ["pods", "nodes"]
+    verbs: ["get", "list"]

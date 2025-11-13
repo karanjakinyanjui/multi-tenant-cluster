@@ -1,0 +1,114 @@
+---
+# Team Gamma - Experimental Application
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: experimental-app
+  namespace: team-gamma
+  labels:
+    app: experimental-app
+    team: gamma
+    tier: experimental
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: experimental-app
+      team: gamma
+  template:
+    metadata:
+      labels:
+        app: experimental-app
+        team: gamma
+        tier: experimental
+        network-policy: allow-external
+    spec:
+      serviceAccountName: team-gamma-developer
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      containers:
+        - name: app
+          image: hashicorp/http-echo:1.0
+          args:
+            - "-text=Team Gamma Experimental Feature - Staging Environment"
+            - "-listen=:8080"
+          ports:
+            - containerPort: 8080
+              name: http
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 250m
+              memory: 256Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          env:
+            - name: ENVIRONMENT
+              value: "staging"
+            - name: TEAM
+              value: "gamma"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
+
+---
+# Experimental App Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: experimental-app
+  namespace: team-gamma
+  labels:
+    app: experimental-app
+    team: gamma
+spec:
+  type: ClusterIP
+  selector:
+    app: experimental-app
+    team: gamma
+  ports:
+    - port: 80
+      targetPort: 8080
+      protocol: TCP
+      name: http
+
+---
+# Experimental App ConfigMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: experimental-config
+  namespace: team-gamma
+  labels:
+    app: experimental-app
+    team: gamma
+data:
+  feature-flags.json: |
+    {
+      "new_feature_a": true,
+      "new_feature_b": false,
+      "experimental_mode": true,
+      "debug_logging": true
+    }
+  app.properties: |
+    environment=staging
+    team=gamma
+    log_level=debug
+    feature_preview=enabled

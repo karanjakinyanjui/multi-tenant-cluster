@@ -1,0 +1,97 @@
+# Pod Security Standards Configuration
+# This file documents the Pod Security Standards applied to each namespace
+#
+# Pod Security Standards are enforced via namespace labels:
+# - pod-security.kubernetes.io/enforce: restricted|baseline|privileged
+# - pod-security.kubernetes.io/audit: restricted|baseline|privileged
+# - pod-security.kubernetes.io/warn: restricted|baseline|privileged
+#
+# Levels:
+# - privileged: Unrestricted policy, providing the widest possible level of permissions
+# - baseline: Minimally restrictive policy which prevents known privilege escalations
+# - restricted: Heavily restricted policy, following current Pod hardening best practices
+
+---
+# Team Alpha - Baseline security (Production)
+# Namespaces can be labeled with these commands:
+# kubectl label namespace team-alpha pod-security.kubernetes.io/enforce=baseline
+# kubectl label namespace team-alpha pod-security.kubernetes.io/audit=restricted
+# kubectl label namespace team-alpha pod-security.kubernetes.io/warn=restricted
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: team-alpha
+  labels:
+    name: team-alpha
+    team: alpha
+    environment: production
+    managed-by: platform-team
+    # Pod Security Standards
+    pod-security.kubernetes.io/enforce: baseline
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/warn: restricted
+  annotations:
+    description: "Production namespace for Team Alpha - handles customer-facing services"
+    owner: "alpha-team-lead@company.com"
+    cost-center: "CC-ALPHA-001"
+
+---
+# Team Beta - Baseline security (Production)
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: team-beta
+  labels:
+    name: team-beta
+    team: beta
+    environment: production
+    managed-by: platform-team
+    # Pod Security Standards
+    pod-security.kubernetes.io/enforce: baseline
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/warn: restricted
+  annotations:
+    description: "Production namespace for Team Beta - handles data processing services"
+    owner: "beta-team-lead@company.com"
+    cost-center: "CC-BETA-002"
+
+---
+# Team Gamma - Restricted security (Staging - more permissive for testing)
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: team-gamma
+  labels:
+    name: team-gamma
+    team: gamma
+    environment: staging
+    managed-by: platform-team
+    # Pod Security Standards (more permissive for staging)
+    pod-security.kubernetes.io/enforce: baseline
+    pod-security.kubernetes.io/audit: baseline
+    pod-security.kubernetes.io/warn: restricted
+  annotations:
+    description: "Staging namespace for Team Gamma - handles experimental features"
+    owner: "gamma-team-lead@company.com"
+    cost-center: "CC-GAMMA-003"
+
+---
+# Platform namespace - Privileged (for system tools)
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: platform
+  labels:
+    name: platform
+    team: platform
+    environment: shared
+    managed-by: platform-team
+    # Pod Security Standards (privileged for monitoring tools)
+    pod-security.kubernetes.io/enforce: privileged
+    pod-security.kubernetes.io/audit: restricted
+    pod-security.kubernetes.io/warn: restricted
+  annotations:
+    description: "Platform namespace for shared services and monitoring tools"
+    owner: "platform-team@company.com"
+    cost-center: "CC-PLATFORM-000"

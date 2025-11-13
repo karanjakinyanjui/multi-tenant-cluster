@@ -1,0 +1,33 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: team-gamma-developer
+  namespace: team-gamma
+  labels:
+    team: gamma
+    role: developer
+  annotations:
+    description: "Service account for Team Gamma developers"
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: team-gamma-deployer
+  namespace: team-gamma
+  labels:
+    team: gamma
+    role: deployer
+  annotations:
+    description: "Service account for Team Gamma CI/CD deployments"
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: team-gamma-readonly
+  namespace: team-gamma
+  labels:
+    team: gamma
+    role: readonly
+  annotations:
+    description: "Service account for Team Gamma read-only access"

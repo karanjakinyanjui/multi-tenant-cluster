@@ -1,0 +1,16 @@
+---
+# Bind monitoring ClusterRole to monitoring service account
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: monitoring-reader-binding
+  labels:
+    app: monitoring
+subjects:
+  - kind: ServiceAccount
+    name: monitoring-agent
+    namespace: platform
+roleRef:
+  kind: ClusterRole
+  name: monitoring-reader
+  apiGroup: rbac.authorization.k8s.io

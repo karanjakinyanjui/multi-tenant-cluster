@@ -1,0 +1,33 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: team-beta-developer
+  namespace: team-beta
+  labels:
+    team: beta
+    role: developer
+  annotations:
+    description: "Service account for Team Beta developers"
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: team-beta-deployer
+  namespace: team-beta
+  labels:
+    team: beta
+    role: deployer
+  annotations:
+    description: "Service account for Team Beta CI/CD deployments"
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: team-beta-readonly
+  namespace: team-beta
+  labels:
+    team: beta
+    role: readonly
+  annotations:
+    description: "Service account for Team Beta read-only access"
